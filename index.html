@@ -24,24 +24,53 @@
 
 <body style="background-color: #273c75;">
 	<h1 id="title">Cell Selection Simulation</h1>
-		<div id="mainGroup" >
-			<div class="row" style="margin: 0 0.5rem;">
-				<div id="map" class="col-6"></div>
-				<div class="col-6">
-					<div class="card configCard" >
-						<div class="card-body">
-							<h5 class="card-title">Card title</h5>
-							<p class="card-text">Some quick example text to build on the card title and make up the bulk
-								of
-								the
-								card's content.</p>
-							<a href="#" class="btn btn-primary">Go somewhere</a>
+	<div id="mainGroup">
+		<div class="row" style="margin: 0 0.5rem;">
+			<div id="map" class="col-6"></div>
+
+
+			<div class="col-6">
+				<div class="card configCard">
+					<div class="card-body">
+						<h5 class="card-title">Control center</h5>
+
+						<!--Avatar's Position-->
+						<p class="card-text">
+							Avatar's Position: x:
+							<input type="text" class="form-control" placeholder="51.505">
+							y:
+							<input type="text" class="form-control" placeholder="-0.09">
+						</p>
+						<a href="#" class="btn btn-primary">Confirm</a>
+
+						<!--Set Random Antennas with a given number-->
+						<div id="RandomAnts">
+							<p>Random antennas number:
+								<input type="text" class="form-control" v-model="antennasNum">
+							</p>
+							<a href="#" class="btn btn-primary" v-on:click="AddAntennas">Confirm</a>
+						</div>
+						<!-- Add Markers-->
+						<div id="AddMarker">
+							<p class="card-text">
+								Add a marker: x:
+								<input type="text" class="form-control" v-model="markerX">
+								y:
+								<input type="text" class="form-control" v-model="markerY">
+							</p>
+							<a href="#" class="btn btn-primary" v-on:click="AddM">Confirm</a>
+						</div>
+						<!-- Avatar State -->
+						<div id="AvatarState">
+							<p>Signal Power:{{Power}}	</p> 
+							<p>Link Antenna:{{AntennaNum}}</p>
 						</div>
 					</div>
 				</div>
-
 			</div>
+
 		</div>
+	</div>
 
 
 
@@ -58,6 +87,47 @@
 			zoomOffset: -1,
 			accessToken: 'pk.eyJ1IjoibHllZWUiLCJhIjoiY2thNGYxbWQzMGNuODNvb2FidGc2cW5wMCJ9.rl6UKu71UtwYQKibnUG-Sg'
 		}).addTo(mymap);
+
+		var AddMarker = new Vue({
+			el: '#AddMarker',
+			data: {
+				markerX: 51.505,
+				markerY: -0.09
+			},
+			methods: {
+				AddM: function (event) {
+					var marker = L.marker([this.markerX, this.markerY]).addTo(mymap);
+				}
+			}
+		})
+		var SetAntennas = new Vue({
+			el: '#RandomAnts',
+			data: {
+				antennasNum: 3
+			},
+			methods: {
+				AddAntennas: function (event) {
+					var distance = 0.01/this.antennasNum;
+					
+					// create a red polygon from an array of LatLng points
+					var latlngs = [[51.505+distance/1.7, -0.09+distance/2], [51.505, -0.09+distance], 
+					[51.505-distance/1.7, -0.09+distance/2], [51.505-distance/1.7, -0.09-distance/2], 
+					[51.505, -0.09-distance],[51.505+distance/1.7, -0.09-distance/2]];
+					var polygon = L.polygon(latlngs, { color: 'red' }).addTo(mymap);
+					// zoom the map to the polygon
+					mymap.fitBounds(polygon.getBounds());
+				}
+			}
+		})
+		var AvatarState = new Vue({
+			el: '#AvatarState',
+			data: {
+				Power: 3,
+				AntennaNum:1
+			},
+			//利用回调函数改变属性的值。
+		})
+
 	</script>
 </body>
 
