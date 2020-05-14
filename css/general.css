@@ -1,0 +1,17 @@
+#map
+{   
+    height: 720px;
+    box-shadow: 0 0 13px 5px #718093;
+
+}
+body{
+    background: #273c75;
+}
+#title{
+    color: honeydew;
+}
+.configCard
+{
+    margin: 0 0.5rem 0;
+    box-shadow: 0 0 13px 5px #718093;
+}

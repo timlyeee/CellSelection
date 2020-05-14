@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title></title>
+	<script src="js/vue.js" type="text/javascript" charset="utf-8">
+	</script>
+	<link rel="stylesheet" href="leaflet/leaflet.css" />
+	<script src="leaflet/leaflet.js" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" href="css/general.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+		integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+		integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+		integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+		crossorigin="anonymous"></script>
+</head>
+
+<body style="background-color: #273c75;">
+	<h1 id="title">Cell Selection Simulation</h1>
+		<div id="mainGroup" >
+			<div class="row" style="margin: 0 0.5rem;">
+				<div id="map" class="col-6"></div>
+				<div class="col-6">
+					<div class="card configCard" >
+						<div class="card-body">
+							<h5 class="card-title">Card title</h5>
+							<p class="card-text">Some quick example text to build on the card title and make up the bulk
+								of
+								the
+								card's content.</p>
+							<a href="#" class="btn btn-primary">Go somewhere</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+
+
+	<script>
+		var mymap = L.map('map').setView([51.505, -0.09], 13);
+		// Create the map with leaflet API.
+		//default token to mapBox: pk.eyJ1IjoibHllZWUiLCJhIjoiY2thNGYxbWQzMGNuODNvb2FidGc2cW5wMCJ9.rl6UKu71UtwYQKibnUG-Sg
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			maxZoom: 18,
+			id: 'mapbox/streets-v11',
+			tileSize: 512,
+			zoomOffset: -1,
+			accessToken: 'pk.eyJ1IjoibHllZWUiLCJhIjoiY2thNGYxbWQzMGNuODNvb2FidGc2cW5wMCJ9.rl6UKu71UtwYQKibnUG-Sg'
+		}).addTo(mymap);
+	</script>
+</body>
+
+</html>
