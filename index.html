@@ -103,16 +103,17 @@
 		var SetAntennas = new Vue({
 			el: '#RandomAnts',
 			data: {
-				antennasNum: 3
+				antennasNum: 1
 			},
 			methods: {
 				AddAntennas: function (event) {
 					var distance = 0.01/this.antennasNum;
 					
 					// create a red polygon from an array of LatLng points
-					var latlngs = [[51.505+distance/1.7, -0.09+distance/2], [51.505, -0.09+distance], 
-					[51.505-distance/1.7, -0.09+distance/2], [51.505-distance/1.7, -0.09-distance/2], 
-					[51.505, -0.09-distance],[51.505+distance/1.7, -0.09-distance/2]];
+                    //伦敦纬度51°30′，cos=0.622，所有涉及经度的计算都需要除以0.622
+					var latlngs = [[51.505+distance*1.73/2, -0.09+distance/(2*0.622)], [51.505, -0.09+distance/0.622],
+					[51.505-distance*1.73/2, -0.09+distance/(2*0.622)], [51.505-distance*1.73/2, -0.09-distance/(2*0.622)],
+					[51.505, -0.09-distance/0.622],[51.505+distance*1.73/2, -0.09-distance/(2*0.622)]];
 					var polygon = L.polygon(latlngs, { color: 'red' }).addTo(mymap);
 					// zoom the map to the polygon
 					mymap.fitBounds(polygon.getBounds());
