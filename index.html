@@ -34,44 +34,16 @@
 					<div class="card-body">
 						<h5 class="card-title">Control center</h5>
 
-						<!--Avatar's Position-->
-						<p class="card-text">
-							Avatar's Position: x:
-							<input type="text" class="form-control" placeholder="51.505">
-							y:
-							<input type="text" class="form-control" placeholder="-0.09">
-						</p>
-						<a href="#" class="btn btn-primary">Confirm</a>
 
 						<!--Set Random Antennas with a given number-->
-						<div id="RandomAnts">
-							<p>Random antennas number:
-								<input type="text" class="form-control" v-model="antennasNum">
+						<div id="StartSimulation">
+							<p>Start Simulation:
+							<p> me the speed you want.</p>
+							<input type="text" class="form-control" v-model="speed">
 							</p>
-							<a href="#" class="btn btn-primary" v-on:click="AddAntennas">Confirm</a>
+							<a href="#" class="btn btn-primary" v-on:click="Start">Confirm</a>
 						</div>
-						<!-- Add Markers-->
-						<div id="AddMarker">
-							<p class="card-text">
-								Add a marker: x:
-								<input type="text" class="form-control" v-model="markerX">
-								y:
-								<input type="text" class="form-control" v-model="markerY">
-							</p>
-							<a href="#" class="btn btn-primary" v-on:click="AddM">Confirm</a>
-						</div>
-						<!-- Avatar State -->
-						<div id="AvatarState">
-							<p>Signal Power:{{Power}} </p>
-							<p>Link Antenna:{{AntennaNum}}</p>
-						</div>
-						<!--Add a path-->
-						<div id="AddPath">
-							<p>Add Path:
-								<input type="text" class="form-control">
-							</p>
-							<a href="#" class="btn btn-primary" v-on:click="AddP">Confirm</a>
-						</div>
+
 					</div>
 				</div>
 			</div>
@@ -94,7 +66,12 @@
 			[51.5136, - 0.1141],
 			[51.4966, - 0.1141]
 		];
-
+		//TODO: a path for the simulation
+		var Path = [
+			[51.505, -0.09],
+			[51.4966, - 0.1141]
+		]
+		var avatar;
 		//2. Use Window.onload to draw the map and polygons.
 		window.onload = () => {
 			var mymap = L.map('map').setView([51.505, -0.09], 13);
@@ -109,11 +86,17 @@
 				accessToken: 'pk.eyJ1IjoibHllZWUiLCJhIjoiY2thNGYxbWQzMGNuODNvb2FidGc2cW5wMCJ9.rl6UKu71UtwYQKibnUG-Sg'
 			}).addTo(mymap);
 
+			//TODO: Draw the hexagones for GSM simulation, need a return value to save each hexagone layer.
 			for (var center of polyCenters) {
-				drawHexagone(center,L,0.01,mymap);
+				drawHexagone(center, L, 0.01, mymap);
 			}
+
+			//Initialize a path as the avatar is at the beginning point.
+			drawPath(Path, L, mymap);
+			avatar = L.marker(Path[0]).addTo(mymap);
+
 		}
-		function drawHexagone(center, L, distance,mymap) {
+		function drawHexagone(center, L, distance, mymap) {
 			// create a red polygon from an array of LatLng points
 			//伦敦纬度51°30′，cos=0.622，所有涉及经度的计算都需要除以0.622
 			//center 为传参，外部遍历本函数做循环处理即可。
@@ -122,65 +105,33 @@
 				[center[0], center[1] + distance / 0.622],
 				[center[0] - distance * 1.73 / 2, center[1] + distance / (2 * 0.622)],
 				[center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)],
-				[center[0], center[1]- distance / 0.622], 
+				[center[0], center[1] - distance / 0.622],
 				[center[0] + distance * 1.73 / 2, center[1] - distance / (2 * 0.622)]];
 			var polygon = L.polygon(latlngs, { color: '#fd79a8' }).addTo(mymap);
 			// zoom the map to the polygon
 			//mymap.fitBounds(polygon.getBounds());
 
 		}
+		function drawPath(PathArrays, L, mymap) {
+			var polyline = L.polyline(PathArrays, { color: '#0984e3' }).addTo(mymap);
+		}
 
-		//Set a new marker by using Vue way
-		var AddMarker = new Vue({
-			el: '#AddMarker',
-			data: {
-				markerX: 51.505,
-				markerY: -0.09
+		//Delete the last marker and draw the next one
+		
+
+		//Start Simulation button
+		var StartSimu = new Vue({
+			el:'#StartSimulation',
+			data:{
+				speed:'1'
 			},
-			methods: {
-				AddM: function (event) {
-					var marker = L.marker([this.markerX, this.markerY]).addTo(mymap);
+			methods:{
+				Start(){
+					avatar.setLatLng(Path[1]);
 				}
 			}
 		})
-		var SetAntennas = new Vue({
-			el: '#RandomAnts',
-			data: {
-				antennasNum: 1
-			},
-			methods: {
-				AddAntennas: function (event) {
 
-				}
-			}
-		})
-		var AddPath = new Vue({
-			el: '#AddPath',
-			data: {
-			},
-			methods: {
-				AddP: function (event) {
-					// create a red polyline from an array of LatLng points
-					var latlngs = [
-						[45.51, -122.68],
-						[37.77, -122.43],
-						[34.04, -118.2]
-					];
-					var polyline = L.polyline(latlngs, { color: 'red' }).addTo(mymap);
-					// zoom the map to the polyline
-					mymap.fitBounds(polyline.getBounds());
-
-				}
-			}
-		})
-		var AvatarState = new Vue({
-			el: '#AvatarState',
-			data: {
-				Power: 3,
-				AntennaNum: 1
-			},
-			//利用回调函数改变属性的值。
-		})
 
 	</script>
 </body>
