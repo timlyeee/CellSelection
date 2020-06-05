@@ -96,6 +96,7 @@
 			avatar = L.marker(Path[0]).addTo(mymap);
 
 		}
+
 		function drawHexagone(center, L, distance, mymap) {
 			// create a red polygon from an array of LatLng points
 			//伦敦纬度51°30′，cos=0.622，所有涉及经度的计算都需要除以0.622
@@ -114,6 +115,31 @@
 		}
 		function drawPath(PathArrays, L, mymap) {
 			var polyline = L.polyline(PathArrays, { color: '#0984e3' }).addTo(mymap);
+		}
+
+		//输入一个点的经纬度坐标，返回信号强度(为距离与0.01的比值)
+		//如果距离大于0.01，返回-1，表示无信号
+		//如果（0.01-距离）与0.01的比值在0-0.25，0.25-0.5，0.5-0.75，0.75-1之间，则信号强度分别为1，2，3，4
+		function signalIntensity(position, polyCenter){
+			var distance = Math.sqrt((position[0] - polyCenters[0])^2 + ((position[1] - polyCenters[1])*1.607)^2);
+			if(distance > 0.01){
+				return -1;
+			}
+			var ratio = (0.01 - distance)/0.01;
+			if(ratio > 0 && ratio <= 0.25){
+				return 1;
+			}
+			else if(ratio > 0.25 && ratio <= 0.5){
+				return 2;
+			}
+			else if(ratio > 0.5 && ratio <= 0.75){
+				return 3;
+			}
+			else if(ratio > 0.75 && ratio <= 1){
+				return 4;
+			}
+			//返回0则判断出错
+			return 0;
 		}
 
 		//Delete the last marker and draw the next one
