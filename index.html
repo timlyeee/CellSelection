@@ -38,7 +38,7 @@
 						<!--Set Random Antennas with a given number-->
 						<div id="StartSimulation">
 							<p>Start Simulation:
-							<p> me the speed you want.</p>
+							<p> Tell me the speed you want.</p>
 							<input type="text" class="form-control" v-model="speed">
 							</p>
 							<a href="#" class="btn btn-primary" v-on:click="Start">Confirm</a>
@@ -121,7 +121,7 @@
 		//如果距离大于0.01，返回-1，表示无信号
 		//如果（0.01-距离）与0.01的比值在0-0.25，0.25-0.5，0.5-0.75，0.75-1之间，则信号强度分别为1，2，3，4
 		function signalIntensity(position, polyCenter){
-			var distance = Math.sqrt((position[0] - polyCenters[0])^2 + ((position[1] - polyCenters[1])*1.607)^2);
+			var distance = Math.sqrt((position[0] - polyCenter[0])^2 + ((position[1] - polyCenter[1])*1.607)^2);
 			if(distance > 0.01){
 				return -1;
 			}
@@ -153,7 +153,30 @@
 			},
 			methods:{
 				Start(){
-					avatar.setLatLng(Path[1]);
+					var flag = 1;
+					var i = 0;
+					while(flag === 1) {
+						var position = Path[i];
+						for (var center of polyCenters) {
+							var intensity = signalIntensity(position, center);
+							if(intensity === -1){
+								continue;
+							}
+							if(intensity === 0){
+								$("#title").html("Algorithm break");
+								break;
+							}
+							if(intensity === 1
+									|| intensity === 2
+									|| intensity === 3
+									|| intensity === 4){
+								$("#title").html("The signal intensity = " + intensity );
+								flag = 0 ;
+							}
+						}
+
+						avatar.setLatLng(Path[1]);
+					}
 				}
 			}
 		})
