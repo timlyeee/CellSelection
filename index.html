@@ -37,7 +37,7 @@
 						<!--Avatar's status-->
 						<div id="AvatarStatus">
 							<h3>Avatar Status</h3>
-							<p>The antenna linked :<span style="color: blueviolet;">{antennaNumber}</span></p>
+							<p>The antenna linked :<span style="color: blueviolet;">{{antennaNumber}}</span></p>
 							<p>Connect Power:</p>
 							<!--TODO: For connect power, use progress bar to show the value. -->
 							<div class="progress">
@@ -49,22 +49,23 @@
 						<!--Simulation Process status-->
 						<div id="StartSimulation">
 							<h3>Simulation Parameters</h3>
-							Start Simulation:
-							<p> Tell me the speed you want.</p>
-							<input type="text" class="form-control" v-model="speed">
-							<a href="#" class="btn btn-primary" v-on:click="Start">Confirm</a>
-							<p>Handover type:</p>
-							<!--Get value by name attributes, use DOM elements-->
-							<div class="custom-control custom-radio custom-control-inline">
-								<input type="radio" id="customRadioInline1" name="customRadioInline"
-									class="custom-control-input" value="hard">
-								<label class="custom-control-label" for="customRadioInline1">Hard Handover</label>
+							<div>
+								<p>Handover type:</p><p>{{ handover }}</p>
+								<!--Get value by name attributes, use DOM elements-->
+								<div class="custom-control custom-radio custom-control-inline">
+									<input type="radio" id="customRadioInline1" name="handoverType"
+										class="custom-control-input" value="hard">
+									<label class="custom-control-label" for="customRadioInline1">Hard Handover</label>
+								</div>
+								<div class="custom-control custom-radio custom-control-inline">
+									<input type="radio" id="customRadioInline2" name="handoverType"
+										class="custom-control-input" value="soft">
+									<label class="custom-control-label" for="customRadioInline2">Soft Handover</label>
+								</div>
 							</div>
-							<div class="custom-control custom-radio custom-control-inline">
-								<input type="radio" id="customRadioInline2" name="customRadioInline"
-									class="custom-control-input" value="soft">
-								<label class="custom-control-label" for="customRadioInline2">Soft Handover</label>
-							</div>
+
+							<a href="#" class="btn btn-primary" v-on:click="Start">Start</a>
+
 						</div>
 
 					</div>
@@ -75,20 +76,50 @@
 	</div>
 
 
-    <script type="text/javascript" src="js/scripts.js"></script>
+	<script type="text/javascript" src="js/scripts.js"></script>
 	<script>
+
+		//Avatar Status
+		var AvatarStat = new Vue({
+			el: '#AvatarStatus',
+			data: {
+				//Indicate the antenna connect to, and the intensity of all.
+				signalIntensity: '1',
+				antennaNumber: '1'
+			},
+			methods: {}
+		})
 		//Start Simulation button
 		var StartSimu = new Vue({
 			el: '#StartSimulation',
 			data: {
-				speed: '1'
+				speed: '1',
+				handover: 'unknown'
 			},
 			methods: {
 				Start() {
+					//TODO: identify the handover type: Then disable the radio group.
+					var handoverRadios = document.getElementsByName('handoverType');
+					for (var handoverType of handoverRadios) {
+						if (handoverType.checked) {
+							this.handover = handoverType.value;
+						}
+					}					
+
+					var position = Path[0];
+					var avatar = L.marker(position).addTo(mymap);
+					setInterval(function () {
+						//TODO: move avatar to next position
+
+					}, 3000);
 					var flag = 1;
 					var i = 0;
+					var position = Path[0];
+
+					//Do not control avatar's position here. Use setInterval to control the animation.
 					while (flag === 1) {
-						var position = Path[i];
+
+
 						for (var center of polyCenters) {
 							var intensity = signalIntensity(position, center);
 							if (intensity === -1) {
@@ -107,8 +138,11 @@
 							}
 						}
 
-						avatar.setLatLng(Path[1]);
+						avatar.setLatLng(Path[i]);
 					}
+				},
+				getIntensity() {
+
 				}
 			}
 		})

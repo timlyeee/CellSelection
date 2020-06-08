@@ -55,10 +55,11 @@ function drawHexagone(center, L, distance, mymap) {
     var polygon = L.polygon(latlngs, { color: '#fd79a8' }).addTo(mymap);
     // zoom the map to the polygon
     //mymap.fitBounds(polygon.getBounds());
-
+    return polygon;
 }
 function drawPath(PathArrays, L, mymap) {
     var polyline = L.polyline(PathArrays, { color: '#0984e3' }).addTo(mymap);
+    return polyline;
 }
 
 //输入一个点的经纬度坐标，返回信号强度(为距离与0.01的比值)
