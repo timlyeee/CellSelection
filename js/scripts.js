@@ -2,12 +2,12 @@
 //1. Array for polygons
 var polyCenters = [
     [51.505, -0.09],
-    [51.522, - 0.09],
-    [51.488, - 0.09],
-    [51.5136, - 0.0659],
-    [51.4966, - 0.0659],
-    [51.5136, - 0.1141],
-    [51.4966, - 0.1141]
+    [51.522, -0.09],
+    [51.488, -0.09],
+    [51.5136, -0.0659],
+    [51.4966, -0.0659],
+    [51.5136, -0.1141],
+    [51.4966, -0.1141]
 ];
 
 //A path for the simulation
@@ -20,7 +20,7 @@ var Path = [
 var avatar;
 var mymap;
 
-function initialize(){
+function initialize() {
 
     mymap = L.map('map').setView([51.505, -0.09], 13);
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -52,13 +52,14 @@ function drawHexagone(center, L, distance, mymap) {
         [center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)],
         [center[0], center[1] - distance / 0.622],
         [center[0] + distance * 1.73 / 2, center[1] - distance / (2 * 0.622)]];
-    var polygon = L.polygon(latlngs, { color: '#fd79a8' }).addTo(mymap);
+    var polygon = L.polygon(latlngs, {color: '#fd79a8'}).addTo(mymap);
     // zoom the map to the polygon
     //mymap.fitBounds(polygon.getBounds());
     return polygon;
 }
+
 function drawPath(PathArrays, L, mymap) {
-    var polyline = L.polyline(PathArrays, { color: '#0984e3' }).addTo(mymap);
+    var polyline = L.polyline(PathArrays, {color: '#0984e3'}).addTo(mymap);
     return polyline;
 }
 
@@ -68,23 +69,80 @@ function drawPath(PathArrays, L, mymap) {
 function signalIntensity(position, polyCenter) {
     var distance = Math.sqrt((position[0] - polyCenter[0]) ^ 2 + ((position[1] - polyCenter[1]) * 1.607) ^ 2);
     if (distance > 0.01) {
-        return -1;
+        return 0;
     }
     var ratio = (0.01 - distance) / 0.01;
     if (ratio > 0 && ratio <= 0.25) {
         return 1;
-    }
-    else if (ratio > 0.25 && ratio <= 0.5) {
+    } else if (ratio > 0.25 && ratio <= 0.5) {
         return 2;
-    }
-    else if (ratio > 0.5 && ratio <= 0.75) {
+    } else if (ratio > 0.5 && ratio <= 0.75) {
         return 3;
-    }
-    else if (ratio > 0.75 && ratio <= 1) {
+    } else if (ratio > 0.75 && ratio <= 1) {
         return 4;
     }
     //返回0则判断出错
-    return 0;
+    return -1;
+}
+
+//Weather the position of user is in the range of any signal tower
+function isInRange(position) {
+    for (var center of polyCenters) {
+        var distance = Math.sqrt((position[0] - center[0]) ^ 2 + ((position[1] - center[1]) * 1.607) ^ 2);
+        if (distance <= 0.01) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//Weather the position of user is in a cross area of 2 or more signal tower
+function isInCorssArea(position) {
+    if (isInRange(position) === false) {
+        return false;
+    }
+    var numCrossArea = 0;
+    for (var center of polyCenters) {
+        var distance = Math.sqrt(Math.pow(position[0] - center[0], 2) + Math.pow((position[1] - center[1]) * 1.607, 2));
+        if (distance <= 0.01) {
+            numCrossArea++;
+        }
+    }
+    return numCrossArea > 1;
+}
+
+//return the number of antenna of a single area 只在一个信号塔范围返回信号塔编号
+//-1: not in any range; -2: in the cross area
+function singleAntennaNumber(position) {
+    if (isInRange(position) === false) {
+        return -1;
+    }
+    if (isInCorssArea(position) === true) {
+        return -2;
+    }
+    for (var i = 0; i < polyCenters.length; i++) {
+        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 1.607, 2));
+        if (distance <= 0.01) {
+            return i;
+        }
+    }
+
+}
+
+//return the number of antenna in a cross area
+//e.g. {1,2} represent antenna No.1 and No.2
+function crossAntennaNumber(position) {
+    if (isInRange(position) === false) {
+        return -1;
+    }
+    var numAntenna = [];
+    for (var i = 0; i < polyCenters.length; i++) {
+        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 1.607, 2));
+        if (distance <= 0.01) {
+            numAntenna.push(i);
+        }
+    }
+    return numAntenna;
 }
 
 window.onload = initialize;
