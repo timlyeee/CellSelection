@@ -122,34 +122,23 @@
                     i++;
                     avatar.setLatLng(Path[i]);
 
-                    //selection
+                    //selection(not connected to any antenna)
                     if (AvatarStat.antennaNumber === -1) {
-                        //at least in a range of a tower
-                        if (isInRange(position)) {
-                            //in the cross area of 2 or more tower
-                            if (isInCorssArea(position)) {
-                                var nums_antenna = crossAntennaNumber(position);
-                                var intensity = signalIntensity(position, polyCenters[num_antenna[0]]);
-                                var best_antenna = num_antenna[0];
-                                //Compare all the intensities of antennas and choose the best one
-                                for (var j = 1; j < num_antenna.length; j++) {
-                                    if (signalIntensity(position, num_antenna[j]) > intensity) {
-                                        intensity = signalIntensity(position, polyCenters[num_antenna[j]]);
-                                        best_antenna = num_antenna[j];
-                                    }
-                                }
-                                AvatarStat.signalIntensity = intensity;
-                                AvatarStat.antennaNumber = best_antenna;
-                                $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + best_antenna);
-                            }
-                            //not in the cross area
-                            else {
-                                var num_antenna = singleAntennaNumber(position);
-                                var intensity = signalIntensity(position, polyCenters[num_antenna]);
-								AvatarStat.signalIntensity = intensity;
-								AvatarStat.antennaNumber = num_antenna;
-                                $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + num_antenna);
-                            }
+                        selection(position);
+                    }
+
+                    //reselection(connected to an antenna but not signal)
+                    if(AvatarStat.antennaNumber !== -1 && AvatarStat.signalIntensity === 0){
+                        selection(position);
+                    }
+
+                    //handover
+                    if(AvatarStat.antennaNumber !== -1 && AvatarStat.signalIntensity > 0 && this.handover !== "unknown") {
+                        if (this.handover === 'hard') {
+                            hardHandover(position);
+                        }
+                        if (this.handover === 'soft') {
+                            softHandover(position);
                         }
                     }
 
@@ -160,6 +149,88 @@
             }
         }
     })
+
+    //also used for reselection
+    function selection(position){
+        //at least in a range of a antenna
+        if (!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if (isInCorssArea(position)) {
+            var nums_antenna = crossAntennaNumber(position);
+            var best_intensity = signalIntensity(position, polyCenters[nums_antenna[0]]);
+            var best_antenna = nums_antenna[0];
+            //Compare all the intensities of antennas and choose the best one
+            for (var j = 1; j < nums_antenna.length; j++) {
+                if (signalIntensity(position, nums_antenna[j]) > best_intensity) {
+                    best_intensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
+                    best_antenna = nums_antenna[j];
+                }
+            }
+            AvatarStat.signalIntensity = best_intensity;
+            AvatarStat.antennaNumber = best_antenna;
+            $("#title").html("The signal intensity = " + best_intensity + ", connected to antenna: " + best_antenna);
+        }
+        //not in the cross area
+        else {
+            var num_antenna = singleAntennaNumber(position);
+            var intensity = signalIntensity(position, polyCenters[num_antenna]);
+            AvatarStat.signalIntensity = intensity;
+            AvatarStat.antennaNumber = num_antenna;
+            $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + num_antenna);
+        }
+    }
+
+    function hardHandover(position){
+        //at least in a range of a antenna
+        if(!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if(!isInCorssArea(position)) {
+            $("#title").html("Can't find other signal");
+            return 0;
+        }
+        var nums_antenna = crossAntennaNumber(position);
+        for (var j = 1; j < nums_antenna.length; j++) {
+            //not the same antenna
+            if (nums_antenna[j] !== this.antennaNumber) {
+                //cut down the present connection
+                AvatarStat.antennaNumber = -1;
+                //set the new connection
+                AvatarStat.antennaNumber = nums_antenna[j];
+                AvatarStat.signalIntensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
+            }
+        }
+    }
+
+    function softHandover(position){
+        //at least in a range of a antenna
+        if(!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if(!isInCorssArea(position)) {
+            $("#title").html("Can't find other signal");
+            return 0;
+        }
+        var nums_antenna = crossAntennaNumber(position);
+        for (var j = 1; j < nums_antenna.length; j++) {
+            //not the same antenna
+            if (nums_antenna[j] !== this.antennaNumber) {
+                //set the new connection(connected to 2 antenna the same time)
+                AvatarStat.antennaNumber = [AvatarStat.antennaNumber, nums_antenna[j]];
+                AvatarStat.signalIntensity = [AvatarStat.signalIntensity, signalIntensity(position, polyCenters[nums_antenna[j]])];
+                //then switch to the other one
+                AvatarStat.antennaNumber = AvatarStat.antennaNumber[0];
+                AvatarStat.signalIntensity = AvatarStat.signalIntensity[0];
+            }
+        }
+    }
 
 
 </script>
