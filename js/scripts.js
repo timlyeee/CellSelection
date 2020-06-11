@@ -1,3 +1,11 @@
+
+//Get all DOM elements here
+var StartButton = document.getElementById('StartBut');
+var NextButton = document.getElementById('NextBut');
+var EndButton = document.getElementById('EndBut');
+
+
+
 //Set the polygons as it initialize
 //1. Array for polygons
 var polyCenters = [
@@ -143,6 +151,28 @@ function crossAntennaNumber(position) {
         }
     }
     return numAntenna;
+}
+
+//Get the unit vector from given field.
+function getUnitVector(lastPos,nextPos){
+    var deltaX = nextPos[0]-lastPos[0];
+    var deltaY = nextPos[1]-lastPos[1];
+    var distance = getDistance(lastPos,nextPos);
+    var unitVector = [deltaX/(distance*1000),deltaY/(distance*1000)];
+    return unitVector;
+}
+
+//Return the value of next position, should be Vector2
+function getNextPos(currentPos,unitVector,speed){
+
+    
+    return [currentPos[0]+unitVector[0]*speed,currentPos[1]+unitVector[1]*speed];
+}
+function getDistance(posA,posB){
+    var deltaX = posA[0]-posB[0];
+    var deltaY = posA[1]-posB[1];
+    var distance = Math.sqrt(deltaX*deltaX+deltaY*deltaY);
+    return distance;
 }
 
 window.onload = initialize;
