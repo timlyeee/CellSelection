@@ -1,9 +1,7 @@
-
 //Get all DOM elements here
 var StartButton = document.getElementById('StartBut');
 var NextButton = document.getElementById('NextBut');
 var EndButton = document.getElementById('EndBut');
-
 
 
 //Set the polygons as it initialize
@@ -60,6 +58,7 @@ function drawHexagone(center, L, distance, mymap) {
         [center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)],
         [center[0], center[1] - distance / 0.622],
         [center[0] + distance * 1.73 / 2, center[1] - distance / (2 * 0.622)]];
+    var test = [center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)];
     var polygon = L.polygon(latlngs, {color: '#fd79a8'}).addTo(mymap);
     // zoom the map to the polygon
     //mymap.fitBounds(polygon.getBounds());
@@ -75,7 +74,7 @@ function drawPath(PathArrays, L, mymap) {
 //如果距离大于0.01，返回-1，表示无信号
 //如果（0.01-距离）与0.01的比值在0-0.25，0.25-0.5，0.5-0.75，0.75-1之间，则信号强度分别为1，2，3，4
 function signalIntensity(position, polyCenter) {
-    var distance = Math.sqrt((position[0] - polyCenter[0]) ^ 2 + ((position[1] - polyCenter[1]) * 1.607) ^ 2);
+    var distance = Math.sqrt(Math.pow((position[0] - polyCenter[0]), 2) + Math.pow(((position[1] - polyCenter[1]) * 0.622), 2));
     if (distance > 0.01) {
         return 0;
     }
@@ -95,11 +94,15 @@ function signalIntensity(position, polyCenter) {
 
 //Weather the position of user is in the range of any signal tower
 function isInRange(position) {
+    var flag = 0;
     for (var center of polyCenters) {
-        var distance = Math.sqrt((position[0] - center[0]) ^ 2 + ((position[1] - center[1]) * 1.607) ^ 2);
+        var distance = Math.sqrt(Math.pow((position[0] - center[0]), 2) + Math.pow(((position[1] - center[1]) * 0.622), 2));
         if (distance <= 0.01) {
-            return true;
+            flag = 1;
         }
+    }
+    if(flag === 1){
+        return true;
     }
     return false;
 }
@@ -111,7 +114,7 @@ function isInCorssArea(position) {
     }
     var numCrossArea = 0;
     for (var center of polyCenters) {
-        var distance = Math.sqrt(Math.pow(position[0] - center[0], 2) + Math.pow((position[1] - center[1]) * 1.607, 2));
+        var distance = Math.sqrt(Math.pow(position[0] - center[0], 2) + Math.pow((position[1] - center[1]) * 0.622, 2));
         if (distance <= 0.01) {
             numCrossArea++;
         }
@@ -129,7 +132,7 @@ function singleAntennaNumber(position) {
         return -2;
     }
     for (var i = 0; i < polyCenters.length; i++) {
-        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 1.607, 2));
+        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 0.622, 2));
         if (distance <= 0.01) {
             return i;
         }
@@ -145,7 +148,7 @@ function crossAntennaNumber(position) {
     }
     var numAntenna = [];
     for (var i = 0; i < polyCenters.length; i++) {
-        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 1.607, 2));
+        var distance = Math.sqrt(Math.pow((position[0] - polyCenters[i][0]), 2) + Math.pow((position[1] - polyCenters[i][1]) * 0.622, 2));
         if (distance <= 0.01) {
             numAntenna.push(i);
         }
@@ -154,25 +157,30 @@ function crossAntennaNumber(position) {
 }
 
 //Get the unit vector from given field.
-function getUnitVector(lastPos,nextPos){
-    var deltaX = nextPos[0]-lastPos[0];
-    var deltaY = nextPos[1]-lastPos[1];
-    var distance = getDistance(lastPos,nextPos);
-    var unitVector = [deltaX/(distance*1000),deltaY/(distance*1000)];
+function getUnitVector(lastPos, nextPos) {
+    var deltaX = nextPos[0] - lastPos[0];
+    var deltaY = nextPos[1] - lastPos[1];
+    var distance = getDistance(lastPos, nextPos);
+    var unitVector = [deltaX / (distance * 1000), deltaY / (distance * 1000)];
     return unitVector;
 }
 
 //Return the value of next position, should be Vector2
-function getNextPos(currentPos,unitVector,speed){
+function getNextPos(currentPos, unitVector, speed) {
 
-    
-    return [currentPos[0]+unitVector[0]*speed,currentPos[1]+unitVector[1]*speed];
+
+    return [currentPos[0] + unitVector[0] * speed, currentPos[1] + unitVector[1] * speed];
 }
-function getDistance(posA,posB){
-    var deltaX = posA[0]-posB[0];
-    var deltaY = posA[1]-posB[1];
-    var distance = Math.sqrt(deltaX*deltaX+deltaY*deltaY);
+
+function getDistance(posA, posB) {
+    var deltaX = posA[0] - posB[0];
+    var deltaY = posA[1] - posB[1];
+    var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     return distance;
+}
+
+function intensityToPercentage(intensity) {
+    return  intensity * 25 + "%";
 }
 
 window.onload = initialize;

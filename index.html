@@ -2,299 +2,295 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title></title>
     <script src="js/vue.js" type="text/javascript" charset="utf-8">
     </script>
-    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/leaflet.css"/>
     <script src="leaflet/leaflet.js" type="text/javascript" charset="utf-8"></script>
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-        crossorigin="anonymous"></script>
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
 </head>
 
 <body style="background-color: #273c75;">
-    <h1 id="title">Cell Selection Simulation</h1>
-    <div id="mainGroup">
-        <div class="row" style="margin: 0 0.5rem;">
-            <div id="map" class="col-6"></div>
+<h1 id="title">Cell Selection Simulation</h1>
+<div id="mainGroup">
+    <div class="row" style="margin: 0 0.5rem;">
+        <div id="map" class="col-6"></div>
 
 
-            <div class="col-6">
-                <div class="card configCard">
-                    <div class="card-body">
-                        <h3 class="card-title">Control center</h3>
+        <div class="col-6">
+            <div class="card configCard">
+                <div class="card-body">
+                    <h3 class="card-title">Control center</h3>
 
-                        <!--Avatar's status-->
-                        <div id="AvatarStatus">
-                            <h4 style="font-style: italic;">Avatar Status</h4>
-                            <p>The antenna linked :<span style="color: blueviolet;">{{antennaNumber}}</span></p>
-                            <p>Power intensity:</p>
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped bg-info" role="progressbar"
-                                    v-bind:style="{ width: signalIntensity }"></div>
-                            </div>
-                            <p>In the path field of <span style="color: blueviolet;">{{inField}}</span></p>
-                            <p>currentPos: <span style="color: blueviolet;">{{currentPos}}</span></p>
-                            <p>Unit Vector of field <span style="color: blueviolet;">{{unitVector}}</span></p>
-                            <p>Speed: <span style="color: blueviolet;">{{speed}}</span></p>
+                    <!--Avatar's status-->
+                    <div id="AvatarStatus">
+                        <h4 style="font-style: italic;">Avatar Status</h4>
+                        <p>The antenna linked :<span style="color: blueviolet;">{{antennaNumber}}</span></p>
+                        <p>Power intensity:</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped bg-info" role="progressbar"
+                                 v-bind:style="{ width: signalIntensity }"></div>
                         </div>
-
-                        <!--Simulation Process status-->
-                        <div id="StartSimulation">
-                            <h4 style="font-style: italic;">Simulation Control Center</h4>
-                            <div>
-                                <p>Handover type:
-                                    <!--Get value by name attributes, use DOM elements-->
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="customRadioInline1" name="handoverType"
-                                        class="custom-control-input" value="hard">
-                                    <label class="custom-control-label" for="customRadioInline1">Hard Handover</label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="customRadioInline2" name="handoverType"
-                                        class="custom-control-input" value="soft">
-                                    <label class="custom-control-label" for="customRadioInline2">Soft Handover</label>
-                                </div>
-                                </p>
-                                <!--Can we set the speed of the avatar? Avoid this question for the moment, but yes we can-->
-                            </div>
-
-                            <button id="StartBut" class="btn btn-primary" v-on:click="Start">Start</button>
-                            <button id="NextBut" class="btn btn-primary" v-on:click="Next" disabled>Next</button>
-                            <button id="EndBut" class="btn btn-primary" v-on:click="End" disabled>End Simu</button>
-
-
-                            <p>In handover process ? <span style="color: blueviolet;">{{inProcess}}</span></p>
-                        </div>
-
+                        <p>In the path field of <span style="color: blueviolet;">{{inField}}</span></p>
+                        <p>currentPos: <span style="color: blueviolet;">{{currentPos}}</span></p>
+                        <p>Unit Vector of field <span style="color: blueviolet;">{{unitVector}}</span></p>
+                        <p>Speed: <span style="color: blueviolet;">{{speed}}</span></p>
                     </div>
+
+                    <!--Simulation Process status-->
+                    <div id="StartSimulation">
+                        <h4 style="font-style: italic;">Simulation Control Center</h4>
+                        <div>
+                            <p>Handover type:
+                                <!--Get value by name attributes, use DOM elements-->
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="customRadioInline1" name="handoverType"
+                                       class="custom-control-input" value="hard">
+                                <label class="custom-control-label" for="customRadioInline1">Hard Handover</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="customRadioInline2" name="handoverType"
+                                       class="custom-control-input" value="soft">
+                                <label class="custom-control-label" for="customRadioInline2">Soft Handover</label>
+                            </div>
+                            </p>
+                            <!--Can we set the speed of the avatar? Avoid this question for the moment, but yes we can-->
+                        </div>
+
+                        <button id="StartBut" class="btn btn-primary" v-on:click="Start">Start</button>
+                        <button id="NextBut" class="btn btn-primary" v-on:click="Next" disabled>Next</button>
+                        <button id="SelectBut" class="btn btn-primary" v-on:click="Select" disabled>Select</button>
+                        <button id="EndBut" class="btn btn-primary" v-on:click="End" disabled>End Simu</button>
+
+
+                        <p>In handover process ? <span style="color: blueviolet;">{{inProcess}}</span></p>
+                    </div>
+
                 </div>
             </div>
-
         </div>
+
     </div>
+</div>
 
 
-    <script type="text/javascript" src="js/scripts.js"></script>
-    <script>
+<script type="text/javascript" src="js/scripts.js"></script>
+<script>
 
-        //Avatar Status
-        var AvatarStat = new Vue({
-            el: '#AvatarStatus',
-            data: {
-                //Indicate the antenna connect to, and the intensity of all.
-                signalIntensity: '100%',
-                antennaNumber: -1,
-                inField: -1,
-                speed: 5,
-                currentPos: [0, 0],
-                unitVector: [0, 0],
+    //Avatar Status
+    var AvatarStat = new Vue({
+        el: '#AvatarStatus',
+        data: {
+            //Indicate the antenna connect to, and the intensity of all.
+            signalIntensity: '0%',
+            antennaNumber: -1,
+            inField: -1,
+            speed: 5,
+            currentPos: [0, 0],
+            unitVector: [0, 0],
 
 
-            },
-            methods: {
+        },
+        methods: {}
+    })
+    //Start Simulation button
+    var StartSimu = new Vue({
+        el: '#StartSimulation',
+        data: {
+            handover: 'unknown',
+            inProcess: 'No',
+            avatar: null,
+        },
+        methods: {
+            Start() {
 
-            }
-        })
-        //Start Simulation button
-        var StartSimu = new Vue({
-            el: '#StartSimulation',
-            data: {
-                handover: 'unknown',
-                inProcess: 'No',
-                avatar: null,
-            },
-            methods: {
-                Start() {
-
-                    //1. Check the handover type and disable the radios.
-                    var handoverRadios = document.getElementsByName('handoverType');
-                    for (var handoverRadio of handoverRadios) {
-                        if (handoverRadio.checked) {
-                            this.handover = handoverRadio.value;
-                        }
-                        handoverRadio.disabled = true;
+                //1. Check the handover type and disable the radios.
+                var handoverRadios = document.getElementsByName('handoverType');
+                for (var handoverRadio of handoverRadios) {
+                    if (handoverRadio.checked) {
+                        this.handover = handoverRadio.value;
                     }
+                    handoverRadio.disabled = true;
+                }
 
-                    //2. Draw the avatars and set parameters of avatar.
-                    var init_position = Path[0];
-                    avatar = L.marker(init_position).addTo(mymap);
-                    AvatarStat.currentPos = Path[0];
-                    AvatarStat.unitVector = getUnitVector(Path[0], Path[1]);
-                    AvatarStat.inField = 0;
+                //2. Draw the avatars and set parameters of avatar.
+                var init_position = Path[0];
+                avatar = L.marker(init_position).addTo(mymap);
+                AvatarStat.currentPos = Path[0];
+                AvatarStat.unitVector = getUnitVector(Path[0], Path[1]);
+                AvatarStat.inField = 0;
 
 
-                    //3. Disable the Start button and enable the next button and End button.
-                    document.getElementById('StartBut').disabled = true;
-                    document.getElementById('NextBut').disabled = false;
-                    document.getElementById('EndBut').disabled = false;
-                },
+                //3. Disable the Start button and enable the next button and End button.
+                document.getElementById('StartBut').disabled = true;
+                document.getElementById('NextBut').disabled = false;
+                document.getElementById('SelectBut').disabled = false;
+                document.getElementById('EndBut').disabled = false;
+            },
 
-                //Use as update, change the position of avatar and show the information
-                Next() {
+            //Use as update, change the position of avatar and show the information
+            Next() {
 
-                    console.log(Path.length);
-                    var nextPos = getNextPos(AvatarStat.currentPos, AvatarStat.unitVector, AvatarStat.speed);
+                console.log(Path.length);
+                var nextPos = getNextPos(AvatarStat.currentPos, AvatarStat.unitVector, AvatarStat.speed);
 
-                    //If it's not the last field
-                    if (AvatarStat.inField + 1 < Path.length) {
-                        console.log(getDistance(Path[AvatarStat.inField + 1], AvatarStat.currentPos));
-                        console.log(Math.sqrt(AvatarStat.unitVector[0] * AvatarStat.unitVector[0] + AvatarStat.unitVector[1] * AvatarStat.unitVector[1]));
-                        if (getDistance(Path[AvatarStat.inField + 1], AvatarStat.currentPos) < Math.sqrt(AvatarStat.unitVector[0] * AvatarStat.unitVector[0] * 25 + AvatarStat.unitVector[1] * AvatarStat.unitVector[1] * 25)) {
-                            AvatarStat.currentPos = Path[AvatarStat.inField + 1];
-                            AvatarStat.inField++;
+                //If it's not the last field
+                if (AvatarStat.inField + 1 < Path.length) {
+                    console.log(getDistance(Path[AvatarStat.inField + 1], AvatarStat.currentPos));
+                    console.log(Math.sqrt(AvatarStat.unitVector[0] * AvatarStat.unitVector[0] + AvatarStat.unitVector[1] * AvatarStat.unitVector[1]));
+                    if (getDistance(Path[AvatarStat.inField + 1], AvatarStat.currentPos) < Math.sqrt(AvatarStat.unitVector[0] * AvatarStat.unitVector[0] * 25 + AvatarStat.unitVector[1] * AvatarStat.unitVector[1] * 25)) {
+                        AvatarStat.currentPos = Path[AvatarStat.inField + 1];
+                        AvatarStat.inField++;
 
-                            if (AvatarStat.inField + 1 === Path.length)
-                                AvatarStat.unitVector = [0, 0];
-                            else
-
-                                AvatarStat.unitVector = getUnitVector(Path[AvatarStat.inField], Path[AvatarStat.inField + 1]);
-
-                        }
-
+                        if (AvatarStat.inField + 1 === Path.length)
+                            AvatarStat.unitVector = [0, 0];
                         else
-                            AvatarStat.currentPos = nextPos;
-                        avatar.setLatLng(AvatarStat.currentPos);
-                    }
-                    else {
-                        console.log("Last path field");
-                        document.getElementById('StartBut').disabled = false;
-                        document.getElementById('NextBut').disabled = true;
-                        document.getElementById('EndBut').disabled = true;
-                        avatar.remove();
 
-                    }
-                    //TODO judgement of arrival.
-                    //Judge power intensity.
-                    var flag = 1;
-                    if (flag === 1) {
+                            AvatarStat.unitVector = getUnitVector(Path[AvatarStat.inField], Path[AvatarStat.inField + 1]);
 
-                        //selection(not connected to any antenna)
-                        if (AvatarStat.antennaNumber === -1) {
-                            selection(AvatarStat.currentPos);
-                        }
-
-                        //reselection(connected to an antenna but not signal)
-                        if (AvatarStat.antennaNumber !== -1 && AvatarStat.signalIntensity === 0) {
-                            selection(AvatarStat.currentPos);
-                        }
-
-                        //handover
-                        if (AvatarStat.antennaNumber !== -1 && AvatarStat.signalIntensity > 0 && this.handover !== "unknown") {
-                            if (this.handover === 'hard') {
-                                hardHandover(AvatarStat.currentPos);
-                            }
-                            if (this.handover === 'soft') {
-                                softHandover(AvatarStat.currentPos);
-                            }
-                        }
-
-                    }
-                    console.log("SD");
-                },
-                End() {
-                    avatar.remove();
+                    } else
+                        AvatarStat.currentPos = nextPos;
+                    avatar.setLatLng(AvatarStat.currentPos);
+                } else {
+                    console.log("Last path field");
                     document.getElementById('StartBut').disabled = false;
                     document.getElementById('NextBut').disabled = true;
                     document.getElementById('EndBut').disabled = true;
-                }
-            }
-        })
+                    avatar.remove();
 
-        //also used for reselection
-        function selection(position) {
-            //at least in a range of a antenna
-            if (!isInRange(position)) {
-                $("#title").html("Out of signal");
-                return 0;
-            }
-            //in the cross area of 2 or more antenna
-            if (isInCorssArea(position)) {
-                var nums_antenna = crossAntennaNumber(position);
-                var best_intensity = signalIntensity(position, polyCenters[nums_antenna[0]]);
-                var best_antenna = nums_antenna[0];
-                //Compare all the intensities of antennas and choose the best one
-                for (var j = 1; j < nums_antenna.length; j++) {
-                    if (signalIntensity(position, nums_antenna[j]) > best_intensity) {
-                        best_intensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
-                        best_antenna = nums_antenna[j];
+                }
+                //TODO judgement of arrival.
+                //Judge power intensity.
+                //at least connected to one antenna
+                var intensity = 0;
+                if (AvatarStat.antennaNumber !== -1) {
+                    intensity = signalIntensity(AvatarStat.currentPos, polyCenters[AvatarStat.antennaNumber]);
+                    AvatarStat.signalIntensity = intensityToPercentage(intensity);
+                }
+
+                if (isInCorssArea(AvatarStat.currentPos) && AvatarStat.antennaNumber !== -1 && this.handover !== "unkown") {
+                    if (this.handover === 'hard') {
+                        hardHandover(AvatarStat.currentPos);
+                    }
+                    if (this.handover === 'soft') {
+                        softHandover(AvatarStat.currentPos);
                     }
                 }
-                AvatarStat.signalIntensity = best_intensity;
-                AvatarStat.antennaNumber = best_antenna;
-                $("#title").html("The signal intensity = " + best_intensity + ", connected to antenna: " + best_antenna);
-            }
-            //not in the cross area
-            else {
-                var num_antenna = singleAntennaNumber(position);
-                var intensity = signalIntensity(position, polyCenters[num_antenna]);
-                AvatarStat.signalIntensity = intensity;
-                AvatarStat.antennaNumber = num_antenna;
-                $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + num_antenna);
+
+                $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + AvatarStat.antennaNumber);
+
+                console.log("SD");
+            },
+
+            Select() {
+                selection(AvatarStat.currentPos);
+            },
+
+            End() {
+                avatar.remove();
+                document.getElementById('StartBut').disabled = false;
+                document.getElementById('NextBut').disabled = true;
+                document.getElementById('EndBut').disabled = true;
             }
         }
+    })
 
-        function hardHandover(position) {
-            //at least in a range of a antenna
-            if (!isInRange(position)) {
-                $("#title").html("Out of signal");
-                return 0;
-            }
-            //in the cross area of 2 or more antenna
-            if (!isInCorssArea(position)) {
-                $("#title").html("Can't find other signal");
-                return 0;
-            }
+    //also used for reselection
+    function selection(position) {
+        //at least in a range of a antenna
+        if (!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if (isInCorssArea(position)) {
             var nums_antenna = crossAntennaNumber(position);
+            var best_intensity = signalIntensity(position, polyCenters[nums_antenna[0]]);
+            var best_antenna = nums_antenna[0];
+            //Compare all the intensities of antennas and choose the best one
             for (var j = 1; j < nums_antenna.length; j++) {
-                //not the same antenna
-                if (nums_antenna[j] !== this.antennaNumber) {
-                    //cut down the present connection
-                    AvatarStat.antennaNumber = -1;
-                    //set the new connection
-                    AvatarStat.antennaNumber = nums_antenna[j];
-                    AvatarStat.signalIntensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
+                if (signalIntensity(position, nums_antenna[j]) > best_intensity) {
+                    best_intensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
+                    best_antenna = nums_antenna[j];
                 }
             }
+            AvatarStat.signalIntensity = intensityToPercentage(best_intensity);
+            AvatarStat.antennaNumber = best_antenna;
+            $("#title").html("The signal intensity = " + best_intensity + ", connected to antenna: " + best_antenna);
         }
+        //not in the cross area
+        else {
+            var num_antenna = singleAntennaNumber(position);
+            var intensity = signalIntensity(position, polyCenters[num_antenna]);
+            AvatarStat.signalIntensity = intensityToPercentage(intensity);
+            AvatarStat.antennaNumber = num_antenna;
+            $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + num_antenna);
+        }
+    }
 
-        function softHandover(position) {
-            //at least in a range of a antenna
-            if (!isInRange(position)) {
-                $("#title").html("Out of signal");
-                return 0;
-            }
-            //in the cross area of 2 or more antenna
-            if (!isInCorssArea(position)) {
-                $("#title").html("Can't find other signal");
-                return 0;
-            }
-            var nums_antenna = crossAntennaNumber(position);
-            for (var j = 1; j < nums_antenna.length; j++) {
-                //not the same antenna
-                if (nums_antenna[j] !== this.antennaNumber) {
-                    //set the new connection(connected to 2 antenna the same time)
-                    AvatarStat.antennaNumber = [AvatarStat.antennaNumber, nums_antenna[j]];
-                    AvatarStat.signalIntensity = [AvatarStat.signalIntensity, signalIntensity(position, polyCenters[nums_antenna[j]])];
-                    //then switch to the other one
-                    AvatarStat.antennaNumber = AvatarStat.antennaNumber[0];
-                    AvatarStat.signalIntensity = AvatarStat.signalIntensity[0];
-                }
+    function hardHandover(position) {
+        //at least in a range of a antenna
+        if (!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if (!isInCorssArea(position)) {
+            $("#title").html("Can't find other signal");
+            return 0;
+        }
+        var nums_antenna = crossAntennaNumber(position);
+        for (var j = 1; j < nums_antenna.length; j++) {
+            //not the same antenna
+            if (nums_antenna[j] !== this.antennaNumber) {
+                //cut down the present connection
+                AvatarStat.antennaNumber = -1;
+                //set the new connection
+                AvatarStat.antennaNumber = nums_antenna[j];
+                AvatarStat.signalIntensity = intensityToPercentage(signalIntensity(position, polyCenters[nums_antenna[j]]));
             }
         }
+    }
+
+    function softHandover(position) {
+        //at least in a range of a antenna
+        if (!isInRange(position)) {
+            $("#title").html("Out of signal");
+            return 0;
+        }
+        //in the cross area of 2 or more antenna
+        if (!isInCorssArea(position)) {
+            $("#title").html("Can't find other signal");
+            return 0;
+        }
+        var nums_antenna = crossAntennaNumber(position);
+        for (var j = 1; j < nums_antenna.length; j++) {
+            //not the same antenna
+            if (nums_antenna[j] !== this.antennaNumber) {
+                //set the new connection(connected to 2 antenna the same time)
+                AvatarStat.antennaNumber = [AvatarStat.antennaNumber, nums_antenna[j]];
+                AvatarStat.signalIntensity = intensityToPercentage([AvatarStat.signalIntensity, signalIntensity(position, polyCenters[nums_antenna[j]])]);
+                //then switch to the other one
+                AvatarStat.antennaNumber = AvatarStat.antennaNumber[0];
+                AvatarStat.signalIntensity = intensityToPercentage(AvatarStat.signalIntensity[0]);
+            }
+        }
+    }
 
 
-    </script>
+</script>
 </body>
 
 </html>
