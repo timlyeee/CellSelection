@@ -20,8 +20,8 @@ var polyCenters = [
 var Path = [
     [51.505, -0.09],
     [51.4966, -0.1141],
-    [51.4966, -0.09],
-    [51.488, -0.09]
+    [51.488, -0.09],
+    [51.541, -0.09]
 ]
 var avatar;
 var mymap;
@@ -58,7 +58,7 @@ function drawHexagone(center, L, distance, mymap) {
         [center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)],
         [center[0], center[1] - distance / 0.622],
         [center[0] + distance * 1.73 / 2, center[1] - distance / (2 * 0.622)]];
-    var test = [center[0] - distance * 1.73 / 2, center[1] - distance / (2 * 0.622)];
+    var circle = L.circle(center, {radius: 1100, color: '#fab1a0'}).addTo(mymap);
     var polygon = L.polygon(latlngs, {color: '#fd79a8'}).addTo(mymap);
     // zoom the map to the polygon
     //mymap.fitBounds(polygon.getBounds());
@@ -101,7 +101,7 @@ function isInRange(position) {
             flag = 1;
         }
     }
-    if(flag === 1){
+    if (flag === 1) {
         return true;
     }
     return false;
@@ -167,8 +167,6 @@ function getUnitVector(lastPos, nextPos) {
 
 //Return the value of next position, should be Vector2
 function getNextPos(currentPos, unitVector, speed) {
-
-
     return [currentPos[0] + unitVector[0] * speed, currentPos[1] + unitVector[1] * speed];
 }
 
@@ -180,7 +178,7 @@ function getDistance(posA, posB) {
 }
 
 function intensityToPercentage(intensity) {
-    return  intensity * 25 + "%";
+    return intensity * 25 + "%";
 }
 
 window.onload = initialize;

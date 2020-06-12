@@ -97,7 +97,7 @@
             signalIntensity: '0%',
             antennaNumber: -1,
             inField: -1,
-            speed: 5,
+            speed: 3,
             currentPos: [0, 0],
             unitVector: [0, 0],
 
@@ -115,15 +115,6 @@
         },
         methods: {
             Start() {
-
-                //1. Check the handover type and disable the radios.
-                var handoverRadios = document.getElementsByName('handoverType');
-                for (var handoverRadio of handoverRadios) {
-                    if (handoverRadio.checked) {
-                        this.handover = handoverRadio.value;
-                    }
-                    handoverRadio.disabled = true;
-                }
 
                 //2. Draw the avatars and set parameters of avatar.
                 var init_position = Path[0];
@@ -171,6 +162,33 @@
                     avatar.remove();
 
                 }
+
+                //1. Check the handover type and disable the radios.
+                var handoverRadios = document.getElementsByName('handoverType');
+                for (var handoverRadio of handoverRadios) {
+                    if (handoverRadio.checked) {
+                        this.handover = handoverRadio.value;
+                    }
+                }
+                //2. Do the handover if needed
+                if (isInCorssArea(AvatarStat.currentPos) && AvatarStat.antennaNumber !== -1 && this.handover !== "unknown") {
+                    if (this.handover === 'hard') {
+                        hardHandover(AvatarStat.currentPos);
+                        for (handoverRadio of handoverRadios) {
+                            handoverRadio.checked = false;
+                            this.handover = 'unknown';
+                        }
+                    }
+                    if (this.handover === 'soft') {
+                        softHandover(AvatarStat.currentPos);
+                        for (handoverRadio of handoverRadios) {
+                            handoverRadio.checked = false;
+                            this.handover = 'unknown';
+                        }
+                    }
+                    return;
+                }
+
                 //TODO judgement of arrival.
                 //Judge power intensity.
                 //at least connected to one antenna
@@ -180,14 +198,6 @@
                     AvatarStat.signalIntensity = intensityToPercentage(intensity);
                 }
 
-                if (isInCorssArea(AvatarStat.currentPos) && AvatarStat.antennaNumber !== -1 && this.handover !== "unkown") {
-                    if (this.handover === 'hard') {
-                        hardHandover(AvatarStat.currentPos);
-                    }
-                    if (this.handover === 'soft') {
-                        softHandover(AvatarStat.currentPos);
-                    }
-                }
 
                 $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + AvatarStat.antennaNumber);
 
@@ -240,7 +250,7 @@
         }
     }
 
-    function hardHandover(position) {
+    async function hardHandover(position) {
         //at least in a range of a antenna
         if (!isInRange(position)) {
             $("#title").html("Out of signal");
@@ -252,19 +262,30 @@
             return 0;
         }
         var nums_antenna = crossAntennaNumber(position);
-        for (var j = 1; j < nums_antenna.length; j++) {
+        for (var j = 0; j < nums_antenna.length; j++) {
             //not the same antenna
-            if (nums_antenna[j] !== this.antennaNumber) {
+            if (nums_antenna[j] !== AvatarStat.antennaNumber) {
+                document.getElementById('NextBut').disabled = true;
+                $("#title").html("Processing hard handover...");
+                await sleep(2000);
                 //cut down the present connection
                 AvatarStat.antennaNumber = -1;
+                $("#title").html("Now cutting down all connection..." + "Now connected to " + AvatarStat.antennaNumber);
+                await sleep(2000);
                 //set the new connection
+                $("#title").html("Setting new connection...");
+                await sleep(2000);
+                var intensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
                 AvatarStat.antennaNumber = nums_antenna[j];
-                AvatarStat.signalIntensity = intensityToPercentage(signalIntensity(position, polyCenters[nums_antenna[j]]));
+                AvatarStat.signalIntensity = intensityToPercentage(intensity);
+                break;
             }
         }
+        $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + AvatarStat.antennaNumber);
+        document.getElementById('NextBut').disabled = false;
     }
 
-    function softHandover(position) {
+    async function softHandover(position) {
         //at least in a range of a antenna
         if (!isInRange(position)) {
             $("#title").html("Out of signal");
@@ -276,17 +297,31 @@
             return 0;
         }
         var nums_antenna = crossAntennaNumber(position);
-        for (var j = 1; j < nums_antenna.length; j++) {
+        for (var j = 0; j < nums_antenna.length; j++) {
             //not the same antenna
-            if (nums_antenna[j] !== this.antennaNumber) {
+            if (nums_antenna[j] !== AvatarStat.antennaNumber) {
+                document.getElementById('NextBut').disabled = true;
+                $("#title").html("Processing soft handover...");
+                await sleep(2000);
                 //set the new connection(connected to 2 antenna the same time)
-                AvatarStat.antennaNumber = [AvatarStat.antennaNumber, nums_antenna[j]];
-                AvatarStat.signalIntensity = intensityToPercentage([AvatarStat.signalIntensity, signalIntensity(position, polyCenters[nums_antenna[j]])]);
+                AvatarStat.antennaNumber = [nums_antenna[j], AvatarStat.antennaNumber];
+                $("#title").html("Now connected to antenna: " + AvatarStat.antennaNumber[0] + " and " + AvatarStat.antennaNumber[1]);
+                await sleep(2000);
                 //then switch to the other one
+                $("#title").html("Cutting down the connection between antenna: " + AvatarStat.antennaNumber[1]);
+                await sleep(2000);
+                var intensity = signalIntensity(position, polyCenters[nums_antenna[j]]);
                 AvatarStat.antennaNumber = AvatarStat.antennaNumber[0];
-                AvatarStat.signalIntensity = intensityToPercentage(AvatarStat.signalIntensity[0]);
+                AvatarStat.signalIntensity = intensityToPercentage(intensity);
+                break;
             }
         }
+        $("#title").html("The signal intensity = " + intensity + ", connected to antenna: " + AvatarStat.antennaNumber);
+        document.getElementById('NextBut').disabled = false;
+    }
+
+    function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
 
